@@ -1,8 +1,12 @@
 package com.example.startedservice;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
@@ -15,7 +19,13 @@ public class MainActivity extends AppCompatActivity {
     public static final String MY_INTENT_KEY = "mykey";
     Button btnStart;
     TextView tvResult;
-    ResultReceiver mResultReceiver;
+
+    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            setTextView(intent.getStringExtra(MY_INTENT_KEY));
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,23 +43,22 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
 
-
+        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver,new IntentFilter());
     }
 
     private void btnStartClicked() {
 
     for(String song : Playlist.songs)
     {
-        Handler handler = new Handler();
-        mResultReceiver = new resultReciever(handler);
-
-        // on recieve result needs to be completed
 
         Intent intent = new Intent(MainActivity.this,MYDownloadedService.class);
         intent.putExtra(MY_INTENT_KEY,song);
-        intent.putExtra(Intent.EXTRA_RESULT_RECEIVER,mResultReceiver);
         startService(intent);
     }
     }
@@ -59,23 +68,5 @@ public class MainActivity extends AppCompatActivity {
         tvResult.append(result +" downloaded" + "\n");
     }
 
-    public class resultReciever extends ResultReceiver {
-        /**
-         * Create a new ResultReceive to receive results.  Your
-         * {@link #onReceiveResult} method will be called from the thread running
-         * <var>handler</var> if given, or from an arbitrary thread if null.
-         *
-         * @param handler
-         */
-        public resultReciever(Handler handler) {
-            super(handler);
-        }
 
-        @Override
-        protected void onReceiveResult(int resultCode, Bundle resultData) {
-
-            if(resultCode == RESULT_OK) setTextView(resultData.getString(MY_INTENT_KEY));
-
-        }
-    }
 }

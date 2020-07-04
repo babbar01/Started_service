@@ -1,16 +1,21 @@
 package com.example.startedservice;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.ResultReceiver;
 import android.util.Log;
 
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 public class handler extends Handler {
 
     private static final String TAG = "mytag";
     private MYDownloadedService myDownloadedService;
-    private ResultReceiver mresultReceiver;
+    private static final String myservice_message = "myservice_message";
+    private Context mContext;
 
     @Override
     public void handleMessage(Message msg) {
@@ -21,10 +26,10 @@ public class handler extends Handler {
         myDownloadedService.stopSelf(msg.arg1);
         // stopselfResult should be used we'll do it some other time............
 
+        Intent intent = new Intent(myservice_message);
+        intent.putExtra(MainActivity.MY_INTENT_KEY,msg.obj.toString());
 
-        Bundle bundle = new Bundle();
-        bundle.putString(MainActivity.MY_INTENT_KEY,msg.obj.toString());
-        mresultReceiver.send(MainActivity.RESULT_OK,bundle);
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
 
 
 
@@ -47,7 +52,9 @@ public class handler extends Handler {
         this.myDownloadedService = myDownloadedService;
     }
 
-    public void setMresultReceiver(ResultReceiver mresultReceiver) {
-        this.mresultReceiver = mresultReceiver;
+    public void setmContext(Context mContext) {
+        this.mContext = mContext;
     }
+
+
 }

@@ -33,9 +33,8 @@ public class MYDownloadedService extends Service {
         msg.arg1 = startId;
         mdownloadThread.mHandler.sendMessage(msg);
 
-        mdownloadThread.mHandler.setMresultReceiver((ResultReceiver)
-                intent.getParcelableExtra(Intent.EXTRA_RESULT_RECEIVER));
-        // casted to result reciever because it is returning parcelable check by Ctrl+Shift+P
+
+
 
         return START_REDELIVER_INTENT;
     }
